@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Financeiro Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border: #475569;
+            --success: #22c55e;
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #e2e8f0;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+        }
+
+        [data-theme="cyberpunk"] {
+            --primary: #ff0080;
+            --primary-dark: #cc0066;
+            --secondary: #00ff41;
+            --accent: #ffff00;
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a0a1a;
+            --bg-card: #2a1a2a;
+            --text-primary: #ff0080;
+            --text-secondary: #00ff41;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            padding: 2rem 0;
+            border-right: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            text-align: center;
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 1rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: var(--primary);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .nav-icon {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: var(--bg-primary);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1));
+            pointer-events: none;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        /* Settings */
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+
+        .settings-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .color-option:hover, .color-option.active {
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .theme-dark { background: linear-gradient(135deg, #6366f1, #10b981); }
+        .theme-light { background: linear-gradient(135deg, #3b82f6, #10b981); }
+        .theme-cyberpunk { background: linear-gradient(135deg, #ff0080, #00ff41); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: fixed;
+                top: 0;
+                left: -100%;
+                z-index: 1000;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h1>FinPro System</h1>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-page="dashboard">
+                        <span class="nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="receitas">
+                        <span class="nav-icon">💰</span>
+                        Receitas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="despesas">
+                        <span class="nav-icon">💸</span>
+                        Despesas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="balanco">
+                        <span class="nav-icon">📈</span>
+                        Balanço Mensal
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="metas">
+                        <span class="nav-icon">🎯</span>
+                        Metas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="investimentos">
+                        <span class="nav-icon">📊</span>
+                        Investimentos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="reservas">
+                        <span class="nav-icon">🛡️</span>
+                        Reserva Emergência
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="notas">
+                        <span class="nav-icon">📝</span>
+                        Notas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="configuracoes">
+                        <span class="nav-icon">⚙️</span>
+                        Configurações
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard -->
+            <div class="page active" id="dashboard">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Visão geral das suas finanças</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-receitas">R$ 0,00</div>
+                        <div class="stat-label">Receitas do Mês</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--danger), #dc2626);">
+                        <div class="stat-value" id="total-despesas">R$ 0,00</div>
+                        <div class="stat-label">Despesas do Mês</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--secondary), #059669);">
+                        <div class="stat-value" id="saldo-atual">R$ 0,00</div>
+                        <div class="stat-label">Saldo Atual</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--accent), #d97706);">
+                        <div class="stat-value" id="reserva-emergencia">R$ 0,00</div>
+                        <div class="stat-label">Reserva de Emergência</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Resumo Mensal</h3>
+                    <div class="chart-container">
+                        <canvas id="dashboardChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receitas -->
+            <div class="page" id="receitas">
+                <div class="page-header">
+                    <h1 class="page-title">Receitas</h1>
+                    <p class="page-subtitle">Gerencie suas fontes de renda</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Nova Receita</h3>
+                        <form id="form-receita">
+                            <div class="form-group">
+                                <label class="form-label">Descrição</label>
+                                <input type="text" class="form-input" name="descricao" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Valor (R$)</label>
+                                <input type="number" class="form-input" name="valor" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tipo de Fonte de Renda</label>
+                                <select class="form-select" name="tipo" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="salario">Salário</option>
+                                    <option value="freelance">Freelance</option>
+                                    <option value="investimentos">Investimentos</option>
+                                    <option value="vendas">Vendas</option>
+                                    <option value="alugueis">Aluguéis</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Data</label>
+                                <input type="date" class="form-input" name="data" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <input type="checkbox" name="fixo"> Receita Fixa
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                💰 Adicionar Receita
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Receitas Cadastradas</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Descrição</th>
+                                    <th>Tipo</th>
+                                    <th>Valor</th>
+                                    <th>Fixo</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receitas-list">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Despesas -->
+            <div class="page" id="despesas">
+                <div class="page-header">
+                    <h1 class="page-title">Despesas</h1>
+                    <p class="page-subtitle">Controle seus gastos</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Nova Despesa</h3>
+                        <form id="form-despesa">
+                            <div class="form-group">
+                                <label class="form-label">Descrição</label>
+                                <input type="text" class="form-input" name="descricao" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Valor (R$)</label>
+                                <input type="number" class="form-input" name="valor" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Categoria</label>
+                                <select class="form-select" name="categoria" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="alimentacao">Alimentação</option>
+                                    <option value="transporte">Transporte</option>
+                                    <option value="moradia">Moradia</option>
+                                    <option value="saude">Saúde</option>
+                                    <option value="educacao">Educação</option>
+                                    <option value="lazer">Lazer</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Data</label>
+                                <input type="date" class="form-input" name="data" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <input type="checkbox" name="fixo"> Despesa Fixa
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                💸 Adicionar Despesa
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Despesas Cadastradas</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Valor</th>
+                                    <th>Fixo</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="despesas-list">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Balanço Mensal -->
+            <div class="page" id="balanco">
+                <div class="page-header">
+                    <h1 class="page-title">Balanço Mensal</h1>
+                    <p class="page-subtitle">Análise detalhada do mês</p>
+                </div>
+
+                <div class="form-group" style="max-width: 300px; margin-bottom: 2rem;">
+                    <label class="form-label">Selecionar Mês/Ano</label>
+                    <input type="month" class="form-input" id="mes-balanco">
+                    <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="gerarBalanco()">
+                        📊 Gerar Balanço
+                    </button>
+                </div>
+
+                <div id="balanco-content" style="display: none;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="balanco-receitas">R$ 0,00</div>
+                            <div class="stat-label">Total Receitas</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, var(--danger), #dc2626);">
+                            <div class="stat-value" id="balanco-despesas">R$ 0,00</div>
+                            <div class="stat-label">Total Despesas</div>
+                        </div>
+                        <div class="stat-card" style="background: linear-gradient(135deg, var(--secondary), #059669);">
+                            <div class="stat-value" id="balanco-resultado">R$ 0,00</div>
+                            <div class="stat-label">Resultado</div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="card">
+                            <h3 style="margin-bottom: 1rem;">Receitas por Tipo</h3>
+                            <div class="chart-container">
+                                <canvas id="receitasChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3 style="margin-bottom: 1rem;">Despesas por Categoria</h3>
+                            <div class="chart-container">
+                                <canvas id="despesasChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>Relatório Detalhado</h3>
+                            <button class="btn btn-success" onclick="downloadPDF()">
+                                📄 Download PDF
+                            </button>
+                        </div>
+                        <div id="relatorio-detalhado"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metas -->
+            <div class="page" id="metas">
+                <div class="page-header">
+                    <h1 class="page-title">Metas Financeiras</h1>
+                    <p class="page-subtitle">Defina e acompanhe seus objetivos</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Nova Meta</h3>
+                        <form id="form-meta">
+                            <div class="form-group">
+                                <label class="form-label">Descrição da Meta</label>
+                                <input type="text" class="form-input" name="descricao" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Valor Objetivo (R$)</label>
+                                <input type="number" class="form-input" name="valorObjetivo" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Prazo</label>
+                                <input type="date" class="form-input" name="prazo" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                🎯 Adicionar Meta
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Suas Metas</h3>
+                    <div id="metas-list"></div>
+                </div>
+            </div>
+
+            <!-- Investimentos -->
+            <div class="page" id="investimentos">
+                <div class="page-header">
+                    <h1 class="page-title">Investimentos</h1>
+                    <p class="page-subtitle">Gerencie sua carteira de investimentos</p>
+                </div>
+
+                <div class="form-grid">
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Novo Investimento</h3>
+                        <form id="form-investimento">
+                            <div class="form-group">
+                                <label class="form-label">Nome do Investimento</label>
+                                <input type="text" class="form-input" name="nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-select" name="tipo" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="poupanca">Poupança</option>
+                                    <option value="cdb">CDB</option>
+                                    <option value="tesouro">Tesouro Direto</option>
+                                    <option value="acoes">Ações</option>
+                                    <option value="fundos">Fundos</option>
+                                    <option value="outros">Outros</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Valor Investido (R$)</label>
+                                <input type="number" class="form-input" name="valor" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Data do Investimento</label>
+                                <input type="date" class="form-input" name="data" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                📊 Adicionar Investimento
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 1rem;">Carteira de Investimentos</h3>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Tipo</th>
+                                    <th>Valor Investido</th>
+                                    <th>Data</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="investimentos-list">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservas -->
+            <div class="page" id="reservas">
+                <div class="page-header">
+                    <h1 class="page-title">Reserva de Emergência</h1>
+                    <p class="page-subtitle">Construa sua segurança financeira</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="valor-reserva">R$ 0,00</div>
+                        <div class="stat-label">Valor Atual</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, var(--accent), #d97706);">
+                        <div class="stat-value" id="meta-reserva">R$ 0,00</div>
+                        <div class="stat-label">Meta (6 meses)</div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="card">
+                        <h3 style="margin-bottom: 1rem;">Movimentar Reserva</h3>
+                        <form id="form-reserva">
+                            <div class="form-group">
+                                <label class="form-label">Tipo de Operação</label>
+                                <select class="form-select" name="tipo" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="deposito">Depósito</option>
+                                    <option value="saque">Saque</option>
+                                </select>
+                            </div>
+                            <div
